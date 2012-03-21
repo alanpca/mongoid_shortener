@@ -14,6 +14,7 @@ module MongoidShortener
 
     REGEX_HTTP_URL = /^\s*(http[s]?:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?\s*$/i
     REGEX_LINK_HAS_PROTOCOL = Regexp.new('\Ahttp:\/\/|\Ahttps:\/\/', Regexp::IGNORECASE)
+    ALLOWED_LETTERS = [('a'..'z'), ('A'..'Z'), ('0'..'9')].map(&:to_a).flatten unless defined?(SLUG_LETTERS)
 
     validates_format_of :url, :with => REGEX_HTTP_URL
 
@@ -37,7 +38,7 @@ module MongoidShortener
     def init_unique_key
       # generate a unique key for the link
       begin
-        self.unique_key = ShortenedUrl::count.encode62
+        self.unique_key = MongoidShortener.key_length.times.map { ALLOWED_LETTERS.sample }.join
       end while ShortenedUrl::where(:unique_key => self.unique_key).first
     end
 
