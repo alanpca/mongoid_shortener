@@ -2,8 +2,14 @@ module MongoidShortener
   class ShortenedUrlsController < ApplicationController
     # find the real link for the shortened link key and redirect
     def translate
+      # Figure out the length
+      begin
+        prefix_len = MongoidShortener.prefix_len
+      rescue NoMethodError
+        prefix_len = 1
+      end
       # pull the link out of the db
-      sl = ShortenedUrl.where(:unique_key => params[:unique_key][1..-1]).first
+      sl = ShortenedUrl.where(:unique_key => params[:unique_key][prefix_len..-1]).first
 
       if sl
         sl.inc(:use_count, 1)
